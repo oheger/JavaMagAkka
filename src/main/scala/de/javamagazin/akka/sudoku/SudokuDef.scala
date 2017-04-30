@@ -16,8 +16,6 @@
 
 package de.javamagazin.akka.sudoku
 
-import java.util
-
 object SudokuDef {
   /**
     * Creates a new instance of ''SudokuDef'' from the specified array with
@@ -38,17 +36,8 @@ object SudokuDef {
       throw new IllegalArgumentException("Field contains a column with invalid number of cells!")
     }
 
-    new SudokuDef(cloneField(field), sqrt)
+    new SudokuDef(cloneArray(field), sqrt)
   }
-
-  /**
-    * Creates a defensive copy of the specified field array.
-    *
-    * @param field the array to be copied
-    * @return the copy
-    */
-  private def cloneField(field: Array[Array[Int]]): Array[Array[Int]] =
-    field map (a => util.Arrays.copyOf(a, a.length))
 }
 
 /**
