@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.javamagazin.akka.sudoku
+package de.javamagazin.akka.sudoku.solver
 
 /**
   * A class storing information about occupied cells.

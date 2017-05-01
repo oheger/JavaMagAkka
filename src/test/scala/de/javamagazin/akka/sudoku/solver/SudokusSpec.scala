@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package de.javamagazin.akka.sudoku
+package de.javamagazin.akka.sudoku.solver
 
-import de.javamagazin.akka.sudoku.Sudokus.{ErrorColumnDuplicate, ErrorInvalidNumber,
-ErrorRowDuplicate, ErrorSquareDuplicate}
+import de.javamagazin.akka.sudoku.solver.Sudokus.{ErrorColumnDuplicate, ErrorInvalidNumber, ErrorRowDuplicate, ErrorSquareDuplicate}
 import org.scalatest.{FlatSpec, Matchers}
 
 object SudokusSpec {

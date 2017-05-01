@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.javamagazin.akka
+package de.javamagazin.akka.sudoku
 
 import scala.reflect.ClassTag
 
@@ -22,7 +22,7 @@ import scala.reflect.ClassTag
   * A package object with some utility methods used by multiple classes in
   * this package.
   */
-package object sudoku {
+package object solver {
   /**
     * Generic clone method for 2d arrays. This is needed by multiple classes
     * that have to do defensive copies of arrays.
