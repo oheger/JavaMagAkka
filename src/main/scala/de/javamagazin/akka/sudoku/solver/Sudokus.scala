@@ -97,6 +97,14 @@ object Sudokus {
                                   override val value: Int) extends CheckError
 
   /**
+    * An exception class reporting errors when solving a sudoku caused by a
+    * failed check operation.
+    *
+    * @param checkError the ''CheckError''
+    */
+  class SudokuException(val checkError: CheckError) extends Exception(checkError.toString)
+
+  /**
     * Creates a ''SudokuDef'' from a string representation of the single rows.
     * Each row is a string with the numbers at their corresponding column
     * positions, separated by comma and optional whitespace.

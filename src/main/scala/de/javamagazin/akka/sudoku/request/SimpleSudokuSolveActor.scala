@@ -19,6 +19,7 @@ package de.javamagazin.akka.sudoku.request
 import akka.actor.Actor
 import de.javamagazin.akka.sudoku.msg.{SolveSudoku, SolveSudokuResponse}
 import de.javamagazin.akka.sudoku.solver.Sudokus
+import de.javamagazin.akka.sudoku.solver.Sudokus.SudokuException
 
 /**
   * An actor class that processes requests to solve sudokus.
@@ -28,7 +29,7 @@ class SimpleSudokuSolveActor extends Actor {
     case SolveSudoku(sudokuDef) =>
       Sudokus.checkSudoku(sudokuDef) match {
         case Left(error) =>
-          sender ! SolveSudokuResponse(sudokuDef, Some(error), 0)
+          sender ! SolveSudokuResponse(sudokuDef, Some(new SudokuException(error)), 0)
 
         case Right(tables) =>
           val startTime = System.nanoTime()
