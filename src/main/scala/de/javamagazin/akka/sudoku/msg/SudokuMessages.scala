@@ -73,3 +73,22 @@ case class SolveSudokuResponse(sudokuDef: SudokuDef, checkError: Option[Throwabl
     */
   def isSuccess: Boolean = checkError.isEmpty && sudokuDef.solved
 }
+
+/**
+  * A message requesting that a file with statistical information is written to
+  * the specified path.
+  *
+  * @param path the path
+  */
+case class WriteStats(path: String)
+
+/**
+  * A message indicating that a file with statistics data has been written
+  * successfully.
+  */
+case object StatsWritten
+
+/**
+  * A message indicating that a file with statistics data could not be written.
+  */
+case object WriteStatsFailed

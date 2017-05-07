@@ -16,13 +16,16 @@
 
 package de.javamagazin.akka.sudoku.router
 
-import akka.actor.{Actor, ActorRef, Props}
+import java.io.IOException
+
+import akka.actor.SupervisorStrategy.{Resume, Stop}
+import akka.actor.{Actor, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
 import akka.routing.BalancingPool
 import akka.pattern.ask
 import akka.util.Timeout
 import de.javamagazin.akka.sudoku.msg._
-import de.javamagazin.akka.sudoku.router.SudokuServiceActor.{FailedSolveOperation,
-SuccessfulSolveOperation}
+import de.javamagazin.akka.sudoku.router.SaveStatsActor.{SaveStatsRequest, SaveStatsResponse}
+import de.javamagazin.akka.sudoku.router.SudokuServiceActor.{FailedSolveOperation, SuccessfulSolveOperation}
 import de.javamagazin.akka.sudoku.solver.SudokuDef
 import de.javamagazin.akka.sudoku.solver.Sudokus.SudokuException
 
@@ -68,6 +71,12 @@ class SudokuServiceActor extends Actor {
   /** The child actor for solving sudoku definitions. */
   private var solveActor: ActorRef = _
 
+  /**
+    * A map which stores the currently active write operations for stats
+    * data. Keys are writer actors, values are the requesting clients.
+    */
+  private var activeWriteOps = Map.empty[ActorRef, ActorRef]
+
   /** The number of solved sudokus. */
   private var solvedCount = 0
 
@@ -79,6 +88,12 @@ class SudokuServiceActor extends Actor {
 
   /** Timeout for ask operations. */
   private implicit val timeout = Timeout(10.seconds)
+
+  /** A custom supervisor strategy. */
+  override val supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
+    case _: IOException => Stop
+    case _ => Resume
+  }
 
   override def preStart(): Unit = {
     super.preStart()
@@ -100,6 +115,23 @@ class SudokuServiceActor extends Actor {
     case FailedSolveOperation(client, sudokuDef, exception) =>
       client ! SolveSudokuResponse(sudokuDef, Some(exception), 0)
       failedCount += 1
+
+    case WriteStats(path) =>
+      val writerActor = context.actorOf(Props[SaveStatsActor])
+      context watch writerActor
+      writerActor ! SaveStatsRequest(path, solvedCount, failedCount, accTime,
+        sender())
+      activeWriteOps += writerActor -> sender()
+
+    case SaveStatsResponse(request) =>
+      request.client ! StatsWritten
+      context unwatch sender()
+      context stop sender()
+      activeWriteOps -= sender()
+
+    case Terminated(actor) =>
+      activeWriteOps.get(actor) foreach (_ ! WriteStatsFailed)
+      activeWriteOps -= actor
   }
 
   /**

@@ -21,7 +21,7 @@ import java.util.concurrent.CountDownLatch
 import akka.actor.{ActorSystem, Props}
 import akka.pattern.ask
 import akka.util.Timeout
-import de.javamagazin.akka.sudoku.msg.SolveSudoku
+import de.javamagazin.akka.sudoku.msg.{SolveSudoku, StatsWritten, WriteStats, WriteStatsFailed}
 import de.javamagazin.akka.sudoku.solver.Sudokus
 
 import scala.concurrent.Await
@@ -100,6 +100,15 @@ object SudokuServiceMain {
     }
 
     latch.await()
+    if (args.length > 0) {
+      val futWrite = actor ? WriteStats(args.head)
+      Await.result(futWrite, 5.seconds) match {
+        case StatsWritten =>
+          println("Statistical data written to " + args.head)
+        case WriteStatsFailed =>
+          println("Could not write statistical data to " + args.head)
+      }
+    }
     println(s"Solved $Count sudokus in ${System.nanoTime() - startTime} ns.")
     val futTerm = system.terminate()
     Await.ready(futTerm, 5.seconds)
