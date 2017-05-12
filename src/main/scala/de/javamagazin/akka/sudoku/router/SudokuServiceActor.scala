@@ -117,7 +117,8 @@ class SudokuServiceActor extends Actor {
       failedCount += 1
 
     case WriteStats(path) =>
-      val writerActor = context.actorOf(Props[SaveStatsActor])
+      val writerActor = context.actorOf(Props[SaveStatsActor]
+        .withDispatcher("blocking-dispatcher"))
       context watch writerActor
       writerActor ! SaveStatsRequest(path, solvedCount, failedCount, accTime,
         sender())
